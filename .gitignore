@@ -29,3 +29,7 @@ logs/
 
 # TD Exclude backup folder from github repo.
 Backup/
+
+
+# General Tidy
+SS/
