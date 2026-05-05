@@ -24,7 +24,7 @@ class ExternalFiles:
     UNLOCK_TAGS = [
         "unlockOnSave"
     ]
-    VERSION_SAVE = False  # when True, each save also writes a versioned snapshot alongside the canonical TOX
+    VERSION_SAVE = True  # when True, each save also writes a versioned snapshot alongside the canonical TOX
 
     def __init__(self, my_op: callable) -> None:
         """Stands in place of an execute dat - ensures all elements start-up 
