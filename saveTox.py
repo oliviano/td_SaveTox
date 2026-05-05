@@ -585,6 +585,10 @@ this TOX does not already exist.
         ui.panes.current.owner = network_location
         ui.panes.current.home()
 
+    def Rebuild_op_list(self) -> None:
+        """Rebuilds the tracked external op list from scratch, respecting current filter settings."""
+        self._ops_manager.Rebuild_op_list()
+
     def Ignore_current_changes(self, op_id: int):
         self._ops_manager.Ignore_current_dirty_state(op_id)
 

@@ -127,6 +127,12 @@ class SaveOpManager:
         # force cook DAT with list of all ops
         self.Ext_ops_DAT.cook(force=True)
 
+    def Rebuild_op_list(self) -> None:
+        """Clears and fully rebuilds External_ops from the current filter settings."""
+        self.External_ops.clear()
+        self._build_op_list()
+        self.Ext_ops_DAT.cook(force=True)
+
     def Dirty_check(self) -> None:
         self.Check_external_ops()
         for each_index, each_op in enumerate(self.External_ops):
