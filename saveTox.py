@@ -1,4 +1,4 @@
-"""
+﻿"""
 SudoMagic | sudomagic.com
 Authors   | Matthew Ragan, Ian Shelanskey
 Contact   | contact@sudomagic.com
@@ -24,6 +24,7 @@ class ExternalFiles:
     UNLOCK_TAGS = [
         "unlockOnSave"
     ]
+    VERSION_SAVE = False  # when True, each save also writes a versioned snapshot alongside the canonical TOX
 
     def __init__(self, my_op: callable) -> None:
         """Stands in place of an execute dat - ensures all elements start-up 
@@ -276,6 +277,10 @@ class ExternalFiles:
             pass
 
         self._save_tox(current_loc)
+
+        if self.VERSION_SAVE:
+            self.Save_versioned_tox(current_loc)
+
         return
 
     def Save_tox(self, current_loc):
@@ -379,6 +384,27 @@ class ExternalFiles:
             external_path)
 
         self.Logtotextport(log_msg)
+
+    def _versioned_path(self, current_loc) -> str:
+        """Derives a versioned snapshot path from the canonical externaltox path.
+        e.g. $TOUCH/myComp/myComp.tox -> $TOUCH/myComp/myComp_v2-2-2.tox
+        """
+        ext_path = current_loc.par.externaltox.eval()
+        version_par = current_loc.par['Toxversion']
+        if not version_par:
+            return ext_path
+        version_str = 'v' + version_par.eval().replace('.', '-')
+        base = ext_path.rsplit('.tox', 1)[0]
+        return f"{base}_{version_str}.tox"
+
+    def Save_versioned_tox(self, current_loc) -> None:
+        """Saves a versioned snapshot alongside the canonical TOX.
+        Does not modify the externaltox par — TD keeps loading from the canonical file.
+        Only called when VERSION_SAVE is True.
+        """
+        versioned_path = self._versioned_path(current_loc)
+        current_loc.save(versioned_path)
+        self.Logtotextport(f"{current_loc} versioned snapshot → {project.folder}/{versioned_path}")
 
     def preToxSave(self, tox):
         """ pre tox save event handling """
