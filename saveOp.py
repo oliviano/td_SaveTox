@@ -1,4 +1,4 @@
-"""
+﻿"""
 SudoMagic | sudomagic.com
 Authors   | Matthew Ragan, Ian Shelanskey
 Contact   | contact@sudomagic.com
@@ -45,18 +45,8 @@ class SaveOpManager:
         self.External_ops.append(new_save_op)
         pass
 
+    # NOT IMPLEMENTED — placeholder for future hash-based status check
     def check_hash_status(self) -> None:
-        """TODO: complete doc strings
-
-        Args
-        ---------------
-        self (`callable`)
-        > Class instance
-
-        Returns
-        ---------------
-        None      
-        """
         pass
 
     @property
@@ -76,23 +66,10 @@ class SaveOpManager:
 
         return external_ops
 
+    # NOT CALLED — kept as foundation, relies on is_dirty which now uses op.dirty natively
     @property
-    def dirty_ops(self) -> None:
-        """TODO: complete doc strings
-
-        Args
-        ---------------
-        self (`callable`)
-        > Class instance
-
-        Returns
-        ---------------
-        None      
-        """
-
-        dirty_op_list = [
-            each_ext_op for each_ext_op in self.External_ops if each_ext_op.is_dirty]
-        return dirty_op_list
+    def dirty_ops(self) -> list:
+        return [each_ext_op for each_ext_op in self.External_ops if each_ext_op.is_dirty]
 
     def _build_op_list(self) -> None:
         """TODO: complete doc strings
@@ -133,6 +110,7 @@ class SaveOpManager:
         self._build_op_list()
         self.Ext_ops_DAT.cook(force=True)
 
+    # NOT CALLED — hash-based dirty check, unfinished. is_dirty now uses op.dirty natively
     def Dirty_check(self) -> None:
         self.Check_external_ops()
         for each_index, each_op in enumerate(self.External_ops):
@@ -142,6 +120,7 @@ class SaveOpManager:
             else:
                 self.External_ops.pop(each_index)
 
+    # NOT CALLED — depends on hash system, unfinished
     def Ignore_current_dirty_state(self, target_op_id: int) -> None:
         target_op: SaveOp = self.get_save_op_by_id(target_op_id)
         target_op.op_hash = saveUtils.gen_hash_from_op(target_op.td_op)
@@ -207,31 +186,17 @@ class SaveOp:
             None
         """
         self._ext_op = td_operator
-        self._is_dirty = tdu.Dependency(False)
         self.id = td_operator.id
         return
 
+    # NOT CALLED — hash-based dirty detection, unfinished. _op_hash never initialized in __init__
     def dirty_check(self) -> None:
-        """TODO: complete doc strings
-
-        Args
-        ---------------
-        self (`callable`)
-        > Class instance
-
-        Returns
-        ---------------
-        None      
-        """
-
         old_hash = self._op_hash
         new_hash = saveUtils.gen_hash_from_op(self._ext_op)
         if new_hash != old_hash:
-            self.is_dirty = True
             debug(f"{self._ext_op} is dirty")
-        else:
-            self.is_dirty = False
 
+    # NOT USED — part of unfinished hash system
     @property
     def op_hash(self) -> callable:
         return self._op_hash
@@ -246,44 +211,7 @@ class SaveOp:
 
     @property
     def is_dirty(self) -> bool:
-        """is_dirty getter
-
-        Returns tdu.Dependency value
-
-        Args
-        ---------------
-        self (`callable`)
-        > Class instance
-
-        state (`bool`)
-        > The new state for the saveOp
-
-        Returns
-        ---------------
-        is_dirty (`bool`)
-        > The dirty state as a boolean      
-        """
-        return self._is_dirty.val
-
-    @is_dirty.setter
-    def is_dirty(self, state: bool):
-        """is_dirty setter
-
-        Updates tdu.Dependency value
-
-        Args
-        ---------------
-        self (`callable`)
-        > Class instance
-
-        state (`bool`)
-        > The new state for the saveOp
-
-        Returns
-        ---------------
-        None      
-        """
-        self._is_dirty.val = state
+        return self._ext_op.dirty
 
     @property
     def last_saved(self) -> callable:
@@ -304,10 +232,14 @@ class SaveOp:
         return self._ext_op.par.Externaltox
 
     @property
-    def tags(self) -> callable:
-        if 'submodule' in self._ext_op.tags:
-            return 'submodule'
-        elif 'devTool' in self._ext_op.tags:
-            return 'DevTool'
-        else:
-            return ''
+    def tags(self) -> str:
+        return ', '.join(sorted(self._ext_op.tags))
+   
+    # Original Code / Matthew's version
+    # def tags(self) -> callable:
+    #     if 'submodule' in self._ext_op.tags:
+    #         return 'submodule'
+    #     elif 'devTool' in self._ext_op.tags:
+    #         return 'DevTool'
+    #     else:
+    #         return ''
