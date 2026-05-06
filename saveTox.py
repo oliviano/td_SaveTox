@@ -24,7 +24,8 @@ class ExternalFiles:
     UNLOCK_TAGS = [
         "unlockOnSave"
     ]
-    VERSION_SAVE = True  # when True, each save also writes a versioned snapshot alongside the canonical TOX
+    VERSION_SAVE = True    # when True, each save also writes a versioned snapshot alongside the canonical TOX
+    CANONICAL_SAVE = False  # when False, only the versioned file is written and externaltox par is updated to point to it
 
     def __init__(self, my_op: callable) -> None:
         """Stands in place of an execute dat - ensures all elements start-up 
@@ -207,18 +208,16 @@ class ExternalFiles:
 
             # check if external
             if current_loc.par.externaltox != '':
-                confirmation = ui.messageBox(
-                    msg_box_title, msg_box_msg,
-                    buttons=msg_box_buttons)
 
-                if confirmation:
+                # only warn about overwriting when the canonical file is actually being written
+                if self.CANONICAL_SAVE:
+                    confirmation = ui.messageBox(
+                        msg_box_title, msg_box_msg,
+                        buttons=msg_box_buttons)
+                    if not confirmation:
+                        return
 
-                    # save external file
-                    self.Save_over_tox(current_loc)
-
-                else:
-                    # if the user presses "cancel" we pass
-                    pass
+                self.Save_over_tox(current_loc)
 
             # in this case we are not external, so let's ask if we want to
             # externalize the file
@@ -353,8 +352,8 @@ class ExternalFiles:
         # Run pre-save event
         self.preToxSave(current_loc)
 
-        # save tox
-        current_loc.save(external_path)
+        if self.CANONICAL_SAVE:
+            current_loc.save(external_path)
 
         # Run post-save event
         self.postToxSave(current_loc)
@@ -377,13 +376,33 @@ class ExternalFiles:
             current_loc,
             False)
 
-        # create and print log message
-        log_msg = "{} saved to {}/{}".format(
-            current_loc,
-            project.folder,
-            external_path)
+        if self.CANONICAL_SAVE:
+            self.Logtotextport(f"{current_loc} saved to {project.folder}/{external_path}")
 
-        self.Logtotextport(log_msg)
+    def _version_tuple(self, version_str: str) -> tuple:
+        """Convert '2.3.1' to (2, 3, 1) for comparison."""
+        try:
+            return tuple(int(x) for x in version_str.split('.'))
+        except:
+            return (0, 0, 0)
+
+    def _find_latest_disk_version(self, current_loc) -> str:
+        """Scans the TOX directory for versioned snapshots and returns the highest semver found, or '' if none."""
+        import re
+        ext_path = tdu.expandPath(current_loc.par.externaltox.eval())
+        directory = os.path.dirname(ext_path)
+        pattern = re.compile(rf'{re.escape(current_loc.name)}_v(\d+)-(\d+)-(\d+)\.tox$')
+        highest = None
+        try:
+            for fname in os.listdir(directory):
+                m = pattern.match(fname)
+                if m:
+                    ver = tuple(int(x) for x in m.groups())
+                    if highest is None or ver > highest:
+                        highest = ver
+        except FileNotFoundError:
+            return ''
+        return f"{highest[0]}.{highest[1]}.{highest[2]}" if highest else ''
 
     def _versioned_path(self, current_loc) -> str:
         """Derives a versioned snapshot path from the canonical externaltox path.
@@ -398,13 +417,24 @@ class ExternalFiles:
         return f"{base}_{version_str}.tox"
 
     def Save_versioned_tox(self, current_loc) -> None:
-        """Saves a versioned snapshot alongside the canonical TOX.
-        Does not modify the externaltox par — TD keeps loading from the canonical file.
-        Only called when VERSION_SAVE is True.
+        """Saves a versioned snapshot. 
+        If CANONICAL_SAVE is False, also updates externaltox to point to the versioned file.
+        Warns if a higher version already exists on disk.
         """
+        current_ver = (current_loc.par['Toxversion'].eval()
+                       if current_loc.par['Toxversion'] else '0.0.0')
+        latest_on_disk = self._find_latest_disk_version(current_loc)
+        if latest_on_disk and self._version_tuple(latest_on_disk) > self._version_tuple(current_ver):
+            self.Logtotextport(
+                f"WARNING: {current_loc.name} — disk has v{latest_on_disk}, saving v{current_ver}")
+
         versioned_path = self._versioned_path(current_loc)
         current_loc.save(versioned_path)
-        self.Logtotextport(f"{current_loc} versioned snapshot → {project.folder}/{versioned_path}")
+
+        if not self.CANONICAL_SAVE:
+            current_loc.par.externaltox = versioned_path
+
+        self.Logtotextport(f"{current_loc} versioned → {project.folder}/{versioned_path}")
 
     def preToxSave(self, tox):
         """ pre tox save event handling """
