@@ -473,31 +473,36 @@ this TOX does not already exist.
         button_selection = info.get('button')
 
         if button_selection == 'Cancel':
-            pass
+            return
 
+        current_loc = info.get('details').get('current_loc')
+        new_path = info.get('details').get('new_path')
+
+        # re-derive the relative externaltox path from the absolute directory
+        save_loc = os.path.dirname(new_path)
+        rel_path = tdu.collapsePath(save_loc)
+        if rel_path == '$TOUCH':
+            rel_loc = f"{current_loc.name}/{current_loc.name}.tox"
         else:
-            current_loc = info.get('details').get('current_loc')
-            new_path = info.get('details').get('new_path')
+            rel_loc = f"{rel_path}/{current_loc.name}/{current_loc.name}.tox"
 
-            # format our tox path
-            tox_path = '{dir_path}/{tox}.tox'.format(
-                dir_path=new_path, tox=current_loc.name)
+        # set externaltox (was missing in original code)
+        if not current_loc.par['Sudotool']:
+            current_loc.par.externaltox = rel_loc
+        current_loc.par.savebackup = False
 
-            # update custom pars
+        # update version pars
+        if self.my_op.par.Includeaboutpage:
             self.update_version_pars(current_loc)
+            self.update_save_time(current_loc)
 
-            # save our tox
-            current_loc.save(tox_path)
+        # save via standard methods — respects CANONICAL_SAVE / VERSION_SAVE
+        self._save_tox(current_loc)
 
-            # flash color
-            self.Flash_bg("Bgcolor")
+        if self.VERSION_SAVE:
+            self.Save_versioned_tox(current_loc)
 
-            # create and print log message
-            log_msg = "{} saved to {}/{}".format(
-                current_loc,
-                project.folder,
-                tox_path)
-            self.Logtotextport(log_msg)
+        self._ops_manager.Check_external_ops()
 
     def update_custom_str_par(self, targetOp, par, value, par_label="Temp"):
         if targetOp.par[par] != None:
