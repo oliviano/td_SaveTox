@@ -281,6 +281,10 @@ class ExternalFiles:
         if self.VERSION_SAVE:
             self.Save_versioned_tox(current_loc)
 
+        # RELOAD: reloads the COMP from externaltox after save so TD clears the dirty flag.
+        # Comment out this line to disable auto-reload on save.
+        saveUtils.Reload_tox(current_loc)
+
         return
 
     def Save_tox(self, current_loc):
@@ -339,6 +343,10 @@ class ExternalFiles:
 
             if self.VERSION_SAVE:
                 self.Save_versioned_tox(current_loc)
+
+            # RELOAD: reloads the COMP from externaltox after save so TD clears the dirty flag.
+            # Comment out this line to disable auto-reload on save.
+            saveUtils.Reload_tox(current_loc)
 
             # track new SaveOp
             self._ops_manager.Check_external_ops()
@@ -501,6 +509,10 @@ this TOX does not already exist.
 
         if self.VERSION_SAVE:
             self.Save_versioned_tox(current_loc)
+
+        # RELOAD: reloads the COMP from externaltox after save so TD clears the dirty flag.
+        # Comment out this line to disable auto-reload on save.
+        saveUtils.Reload_tox(current_loc)
 
         self._ops_manager.Check_external_ops()
 
