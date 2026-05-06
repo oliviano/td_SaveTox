@@ -6,6 +6,7 @@ Contact   | contact@sudomagic.com
 
 # pure python
 import os
+import re
 
 # td python mods
 import saveOp
@@ -336,6 +337,9 @@ class ExternalFiles:
             # private save method
             self._save_tox(current_loc)
 
+            if self.VERSION_SAVE:
+                self.Save_versioned_tox(current_loc)
+
             # track new SaveOp
             self._ops_manager.Check_external_ops()
 
@@ -388,7 +392,6 @@ class ExternalFiles:
 
     def _find_latest_disk_version(self, current_loc) -> str:
         """Scans the TOX directory for versioned snapshots and returns the highest semver found, or '' if none."""
-        import re
         ext_path = tdu.expandPath(current_loc.par.externaltox.eval())
         directory = os.path.dirname(ext_path)
         pattern = re.compile(rf'{re.escape(current_loc.name)}_v(\d+)-(\d+)-(\d+)\.tox$')
@@ -407,6 +410,7 @@ class ExternalFiles:
     def _versioned_path(self, current_loc) -> str:
         """Derives a versioned snapshot path from the canonical externaltox path.
         e.g. $TOUCH/myComp/myComp.tox -> $TOUCH/myComp/myComp_v2-2-2.tox
+        Strips any existing _vX-X-X suffix first so versioned paths never compound.
         """
         ext_path = current_loc.par.externaltox.eval()
         version_par = current_loc.par['Toxversion']
@@ -414,6 +418,7 @@ class ExternalFiles:
             return ext_path
         version_str = 'v' + version_par.eval().replace('.', '-')
         base = ext_path.rsplit('.tox', 1)[0]
+        base = re.sub(r'_v\d+-\d+-\d+$', '', base)
         return f"{base}_{version_str}.tox"
 
     def Save_versioned_tox(self, current_loc) -> None:
