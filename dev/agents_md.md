@@ -1,6 +1,6 @@
-﻿# base_save — tool window icons
+﻿# savetox — tool window icons
 
-`base_save` externalizes COMPs to `.tox` files, tracks them, and re-saves them
+`savetox` externalizes COMPs to `.tox` files, tracks them, and re-saves them
 with semver versions. Its tool window ("All TOX Components") lists every
 tracked external COMP. Open it with `ctrl+shift+w`; `ctrl+w` saves or
 externalizes the COMP shown in the focused network pane.
@@ -16,7 +16,7 @@ All icons are Material Design Icons glyphs drawn by textCOMPs.
 | Two arrows in a circle | `F04E6` | `container_header/text_icon_manifest` | Only shown when `Manifestenable` is on. Calls `parent.save.Sync_manifest()`: writes this machine's TOX manifest and re-reads the other machines' (fills the Remote and Sync columns). Does not run git. |
 | Circular arrow | `F1377` | `container_header/text_icon_refresh` | Quick refresh. Calls `parent.save.Ops_manager.Check_external_ops()`: adds newly externalized COMPs, drops deleted ones, and updates the dirty states. Does not re-apply filter changes to rows already listed. |
 | Boxed X | `F0158` | `container_header/text_icon_close` | Closes the window (`window1.par.winclose`). |
-| Python logo (hidden) | `F0320` | `container_header/text_icon_refresh_ext` | `display` is off. Re-initializes base_save's own extensions. |
+| Python logo (hidden) | `F0320` | `container_header/text_icon_refresh_ext` | `display` is off. Re-initializes savetox's own extensions. |
 
 Each header icon is wired by a `panelexec_*` DAT in `container_header`. Their
 left-to-right order is their `nodeX` in the network (`alignorder = me.nodeX`).
@@ -46,7 +46,7 @@ depend on the row's state.
 ## Row tint
 
 A row whose COMP has unsaved changes (`dirty` = True) is tinted with the
-`Dirtyrow` colour from base_save's Colors page. This is done in `onInitCell`
+`Dirtyrow` colour from savetox's Colors page. This is done in `onInitCell`
 in `listerConfig/callbacks` and needs the lister's Advanced Callbacks par on.
 The dirty state is only re-read when the window opens or a refresh icon is
 pressed; it is not live.

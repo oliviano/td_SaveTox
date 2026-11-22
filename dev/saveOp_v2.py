@@ -21,7 +21,7 @@ class SaveOpManager:
         > DAT that renders External_ops as a table - force cooked on change
 
         my_op (`COMP`)
-        > base_save, read for the filter settings
+        > savetox, read for the filter settings
         """
         self.Ext_ops_DAT = ext_ops_DAT
         self._my_op = my_op

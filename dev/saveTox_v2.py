@@ -23,7 +23,7 @@ class ExternalFiles:
     """Externalizes COMPs to TOX files, tracks them, and re-saves them
     with semver versioning.
 
-    Promoted on base_save, so every Capitalized member is reachable as
+    Promoted on savetox, so every Capitalized member is reachable as
     `parent.save.<Member>` from anywhere inside the tool.
     """
     FLASH_DURATION = 14
@@ -34,7 +34,7 @@ class ExternalFiles:
     VERSION_SUFFIX = re.compile(r'_v(\d+)-(\d+)-(\d+)(?=\.tox$)')
 
     # Fallbacks for the save mode toggles on the Save Settings page
-    # (`Versionsave` / `Canonicalsave`), used when base_save lacks the par.
+    # (`Versionsave` / `Canonicalsave`), used when savetox lacks the par.
     #   VERSION_SAVE   - every save writes a new myComp_v1-2-3.tox and the
     #                    externaltox par follows the newest one
     #   CANONICAL_SAVE - every save overwrites the single myComp.tox
@@ -192,7 +192,7 @@ class ExternalFiles:
         return self._ops_manager
 
     def _setting(self, par_name: str, default):
-        """Value of a base_save settings par, or `default` when this copy
+        """Value of a savetox settings par, or `default` when this copy
         of the tool does not have that par."""
         par = self.my_op.par[par_name]
         return default if par is None else par.eval()
@@ -228,7 +228,7 @@ class ExternalFiles:
             return True
         self.Logtotextport(
             "ERROR: nothing saved - both save modes are off. Turn on "
-            "'Versioned Snapshots' or 'Single File' on base_save")
+            "'Versioned Snapshots' or 'Single File' on savetox")
         return False
 
     @property
@@ -399,7 +399,7 @@ class ExternalFiles:
         """Adds the filter tag (Tagtofilterinclude, e.g. 'Ext') to a COMP
         that is being externalized, so it is listed without manual tagging.
 
-        Can be switched off with the optional `Autotag` toggle on base_save.
+        Can be switched off with the optional `Autotag` toggle on savetox.
         """
         auto_tag_par = self.my_op.par['Autotag']
         if auto_tag_par is not None and not auto_tag_par.eval():

@@ -15,7 +15,7 @@ Decisions taken (2026-11-22):
 
 ## Goal
 
-Two people work on the same project from different machines. Each needs to see which TOX versions the other has, and decide when to update. A small text manifest per host is committed to git; `base_save` compares the other host's manifest with the local state.
+Two people work on the same project from different machines. Each needs to see which TOX versions the other has, and decide when to update. A small text manifest per host is committed to git; `savetox` compares the other host's manifest with the local state.
 
 Out of scope: moving the `.tox` files themselves.
 
@@ -49,7 +49,7 @@ Out of scope: moving the `.tox` files themselves.
 
 The key is the TOX path, not the operator path, so a COMP renamed or moved in the network still matches on both hosts.
 
-**Host identity:** the machine name, with an optional override in a gitignored `tox_manifest/.local` file. A par on `base_save` would be wrong: it is saved in the `.toe`, and if the `.toe` travels between machines one host would overwrite the other's manifest.
+**Host identity:** the machine name, with an optional override in a gitignored `tox_manifest/.local` file. A par on `savetox` would be wrong: it is saved in the `.toe`, and if the `.toe` travels between machines one host would overwrite the other's manifest.
 
 ## 2. When it is written
 

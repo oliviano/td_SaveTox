@@ -8,7 +8,7 @@ Original authors: Matthew Ragan & Ian Shelanskey (sudomagic.com)
 
 ## Overview
 
-`base_save` is a devTool COMP (`tags: devTool, delete_on_build`) that sits at the root of your project and manages externalizing, tracking, and saving TouchDesigner COMP files (`.tox`). It is accessible from anywhere in the network via the parent shortcut `parent.save`.
+`savetox` is a devTool COMP (`tags: devTool, delete_on_build`) that sits at the root of your project and manages externalizing, tracking, and saving TouchDesigner COMP files (`.tox`). It is accessible from anywhere in the network via the parent shortcut `parent.save`.
 
 Two keyboard shortcuts are registered globally:
 - `ctrl+w` — save or externalize the COMP currently open in the active pane
@@ -20,7 +20,7 @@ Two keyboard shortcuts are registered globally:
 
 ### In plain words
 
-There are two ways `base_save` can write a TOX file. You pick with two toggles on the **Save Settings** page of `base_save`. The read-only **Current Save Mode** line right below them always tells you what the two toggles do together.
+There are two ways `savetox` can write a TOX file. You pick with two toggles on the **Save Settings** page of `savetox`. The read-only **Current Save Mode** line right below them always tells you what the two toggles do together.
 
 **Versioned Snapshots** (on by default, recommended)
 Every save writes a *new* file with the version in its name: `myComp_v1-0-0.tox`, then `myComp_v1-0-1.tox`, and so on. The COMP always points at the newest one. Nothing is ever overwritten, so you can go back to any earlier save from the version history icon in the tool window. The cost is disk space: old versions stay until you prune them.
@@ -33,7 +33,7 @@ Every save overwrites the same file, `myComp.tox`. Simple and tidy, but the prev
 | on | off | Adds `myComp_v1-2-3.tox`. The COMP points at it. History is kept. **Default.** |
 | off | on | Overwrites `myComp.tox`. No history. |
 | on | on | Overwrites `myComp.tox` (the COMP points at it) and also keeps a versioned copy of every save. |
-| off | off | Nothing is saved. `base_save` refuses and logs an error. |
+| off | off | Nothing is saved. `savetox` refuses and logs an error. |
 
 You can switch modes at any time. The next save writes the right file name for the new mode.
 
@@ -59,7 +59,7 @@ Every external COMP always has a path. There is no "external but without a path"
 
 ## Unsaved TOX check
 
-With **Check Unsaved TOX** (`Checkunsaved`) on, `base_save` looks for external TOX with unsaved changes when you save the project (`ctrl+s`) and when you quit. If it finds any, it lists them and offers **Save All**.
+With **Check Unsaved TOX** (`Checkunsaved`) on, `savetox` looks for external TOX with unsaved changes when you save the project (`ctrl+s`) and when you quit. If it finds any, it lists them and offers **Save All**.
 
 Saving the project is the better moment. In versioned mode a save repoints the COMP to a new file, and that pointer lives in the `.toe`. A TOX saved at quit time is written to disk, but the `.toe` on disk still points at the previous version; load the newest one from the version history icon after reopening.
 
@@ -71,10 +71,10 @@ In the tool window, rows with unsaved changes are tinted (colour: `Dirtyrow` on 
 
 When several people work on copies of the same project, each machine can publish which TOX versions it has, so the others can see it and decide when to update. Moving the `.tox` files themselves is not part of this; they travel by whatever channel you already use.
 
-Turn on **Share TOX Versions** (`Manifestenable`) on the **Sync** page of `base_save`.
+Turn on **Share TOX Versions** (`Manifestenable`) on the **Sync** page of `savetox`.
 
 - Each machine writes one small text file, `tox_manifest/<machine name>.jsonl`, with one line per listed TOX: path, version, save time, TD build and a hash of the file. It is rewritten after every TOX save, and only when something changed.
-- Commit, pull and push that folder with git yourself. `base_save` never runs git. Because every machine only writes its own file, there are no merge conflicts.
+- Commit, pull and push that folder with git yourself. `savetox` never runs git. Because every machine only writes its own file, there are no merge conflicts.
 - The TOX list gains three columns and two row icons. **Remote** shows the highest version any other machine has, and whose it is. **Working On** shows claims (see below). **Sync** compares the remote version with yours:
 
 | Sync | Meaning |
@@ -129,7 +129,7 @@ The history icon on each row lists every versioned snapshot found on disk for th
 
 ## Filter Settings
 
-On the **Save Settings** parameter page of `base_save`:
+On the **Save Settings** parameter page of `savetox`:
 
 | Par | Type | Description |
 |---|---|---|
@@ -158,7 +158,7 @@ The other pars on the page:
 
 ## Key API
 
-All methods below are promoted on `base_save` and callable as `parent.save.Method()`:
+All methods below are promoted on `savetox` and callable as `parent.save.Method()`:
 
 ```python
 parent.save.Rebuild_op_list()
