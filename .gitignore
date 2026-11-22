@@ -33,3 +33,5 @@ Backup/
 
 # General Tidy
 SS/
+# base_save TOX manifest: per-machine settings stay local
+tox_manifest/.local

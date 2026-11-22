@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# base_save TOX manifests: always LF so both hosts write identical bytes
+tox_manifest/* text eol=lf
